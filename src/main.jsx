@@ -1,13 +1,13 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './app.css'
-import { missions, impostor } from './data/missions.js'
+import { missions, impostor, playableMissions } from './data/missions.js'
 import { labs, headerLab } from './data/labs.js'
 import { MissionPlayer } from './mission.jsx'
 import { LabTerminal } from './lab.jsx'
 import { loadProgress } from './progress.js'
 
-const ModelStage = lazy(() => import('./hero-model.jsx'))
+const Backdrop = lazy(() => import('./hero-model.jsx'))
 
 function useRoute() {
   const read = () => window.location.hash.replace(/^#/, '') || '/'
@@ -18,15 +18,6 @@ function useRoute() {
     return () => window.removeEventListener('hashchange', on)
   }, [])
   return route
-}
-
-function Model({ file, className = '' }) {
-  return (
-    <div className={`model-frame ${className}`} aria-hidden="true">
-      <span className="tape tape-l" /><span className="tape tape-r" />
-      <Suspense fallback={<div className="model-loading">LOADING EXHIBIT…</div>}><ModelStage file={file} /></Suspense>
-    </div>
-  )
 }
 
 function Header({ route }) {
@@ -58,7 +49,12 @@ function Landing() {
           </div>
           <p className="tagline">Trust is the vulnerability.</p>
         </div>
-        <Model file="reactor_model.glb" className="hero-model" />
+        <aside className="hero-panel">
+          <p className="eyebrow">Operation status</p>
+          <div className="kpi"><p className="eyebrow">Playable missions</p><b>{playableMissions.length}</b><i /></div>
+          <div className="kpi"><p className="eyebrow">Hands-on labs</p><b>{labs.filter((l) => !l.locked).length}</b><i /></div>
+          <div className="kpi primary"><p className="eyebrow">Live targets</p><b>0</b><i /></div>
+        </aside>
       </section>
 
       <section className="band">
@@ -115,7 +111,7 @@ function Hub() {
     <section className="band page-top">
       <p className="stamp">CASE ARCHIVE</p>
       <h1 className="page-h">Missions</h1>
-      <p className="lede">Browser-based investigations. One live case; more files are being declassified.</p>
+      <p className="lede">Browser-based investigations. Pick a case file, examine the evidence, and make the call.</p>
       <div className="card-grid">{missions.map((m) => <MissionCard key={m.id} m={m} />)}</div>
     </section>
   )
@@ -152,7 +148,6 @@ function About() {
           <p>Every scenario is synthetic. Domains use the reserved <code>.invalid</code> TLD and no link in a mission is ever live. The lab terminal is a sandbox interpreter over in-memory files — it does not execute commands on any machine.</p>
           <p><b>Status:</b> progress is kept only in this browser tab. There are no accounts yet, and nothing is saved to a server. Isolated container labs are planned behind a separate orchestration service.</p>
         </div>
-        <Model file="atom_04_tetra.glb" className="side-model" />
       </div>
     </section>
   )
@@ -167,15 +162,17 @@ function App() {
   let page
   if (route === '/') page = <Landing />
   else if (route === '/missions') page = <Hub />
-  else if (route === `/missions/${impostor.slug}`) page = <MissionPlayer key={route} mission={impostor} Model={Model} />
+  else if (playableMissions.some((m) => route === `/missions/${m.slug}`)) page = <MissionPlayer key={route} mission={playableMissions.find((m) => route === `/missions/${m.slug}`)} />
   else if (route === '/labs') page = <LabsHub />
   else if (route === `/labs/${headerLab.slug}`) page = <LabTerminal key={route} lab={headerLab} />
   else if (route === '/about') page = <About />
   else page = <NotFound />
   return (
     <>
+      <Suspense fallback={null}><Backdrop /></Suspense>
       <div className="grain" aria-hidden="true" />
       <Header route={route} />
+      <div className="crumbs" aria-hidden="true"><span>OPERATION: HUMAN</span>{route.split('/').filter(Boolean).map((c) => <span key={c}>/ {c.replace(/-/g, ' ').toUpperCase()}</span>)}</div>
       <main className="main">{page}</main>
       <footer className="site-footer">Operation: HUMAN · Fictional training scenarios only · No live targets</footer>
     </>

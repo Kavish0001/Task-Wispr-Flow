@@ -27,8 +27,16 @@ nothing is scored until you commit to a decision.
 
 ## What you can do
 
-### 🗂 Mission 001 — *The Impostor*
-An employee at a fictional company receives an "urgent account verification" email from "IT Security".
+### 🗂 Missions
+
+| # | Mission | Skill | Evidence desk |
+|---|---|---|---|
+| 001 | **The Impostor** | Phishing / social engineering | Suspicious email + raw headers |
+| 002 | **Open Door** | Access control, least privilege | Identity console of a stale contractor account |
+| 003 | **Red Relay** | MFA fatigue, account takeover | Authenticator, chat, sign-in and mailbox-rule audit |
+| 004 | *Tailgate* | Physical security | Coming soon |
+
+Every mission uses the same flow:
 
 | Step | What happens |
 |---|---|
@@ -60,16 +68,20 @@ Completed missions (with best score) and solved lab tasks are remembered **in yo
 
 ## Design
 
-The visual language comes from [My-portfollio](https://github.com/Kavish0001/My-portfollio): paper collage, typewriter
-monospace, ink borders, hard offset shadows, tape strips and ruled paper. Here it becomes an **investigation dossier**,
-with a teal signal colour for the accent. Mission cards look like case files, the decision screen like a form,
-the debrief like a stamped report.
+**Structure from [PayZ](https://github.com/Kavish0001/Odoo-HR-Payroll-Hackathon-PayZ)** (brushed-steel minimalism): three
+typefaces (Space Grotesk headings, Inter body, JetBrains Mono labels), hairline borders, 2px corners, no shadows,
+monospace eyebrows and buttons, a dot-grid breadcrumb strip, KPI tiles with a single rule, and status badges where a dot
+carries the meaning. One accent is used sparingly.
 
-3D exhibits (`public/models/*.glb`) are lazy-loaded in a separate chunk and auto-framed with drei `<Bounds>`. If a
-model fails to load, a procedural shape takes its place.
+**Colour from the 3D models.** The palette is read from the GLB materials: graphite, gunmetal and dark-titanium bodies,
+with emissive cyan as the single UI accent. Violet and copper appear only inside the 3D scene.
 
-Accessibility: keyboard-operable evidence and decisions, visible focus rings, focus moves to the heading on each
-step change, `aria-live` inspector and terminal, and `prefers-reduced-motion` respected.
+**3D backdrop** (`src/hero-model.jsx`, plain three.js, lazy-loaded): the reactor model encloses the whole screen at very
+low opacity, and the four atom models float small on slow ellipses, pushed apart so they never overlap. Every model is
+normalised from its bounding box. The canvas ignores pointer events and holds still under `prefers-reduced-motion`.
+
+Accessibility: keyboard-operable evidence and decisions, visible focus, focus moves to the heading on each step change,
+`aria-live` inspector and terminal.
 
 ## Architecture
 
@@ -80,7 +92,7 @@ Browser ──► React SPA (Vite, hash routing)
               ├─ src/data/labs.js       lab files + runCommand() sandbox interpreter
               ├─ src/lab.jsx            terminal UI
               ├─ src/progress.js        per-browser progress (localStorage)
-              └─ src/hero-model.jsx     lazy 3D stage
+              └─ src/hero-model.jsx     lazy full-screen 3D backdrop (three.js)
         ┄┄►  Mission API (server/, Express)  ← built, not yet wired to the UI
               server-authoritative scoring · bearer-token attempt ownership
               input validation · rate limit · CORS allowlist · no stack traces
@@ -99,11 +111,11 @@ The API contract is documented in **[docs/api.md](docs/api.md)**: `GET /api/miss
 │  ├─ mission.jsx         Mission player
 │  ├─ lab.jsx             Lab terminal
 │  ├─ progress.js         localStorage progress
-│  ├─ hero-model.jsx      React Three Fiber model stage
+│  ├─ hero-model.jsx      three.js backdrop (reactor + floating atoms)
 │  ├─ app.css             design system
 │  └─ data/               missions.js, labs.js
 ├─ server/                Express mission API (index.js, missions.js)
-├─ public/models/         GLB 3D assets
+├─ public/models/         GLB 3D assets (reactor + 4 atoms)
 ├─ docs/                  api.md, agent-orchestration.md
 ├─ Dockerfile, nginx.conf, docker-compose.yml
 └─ vite.config.js         BASE_PATH-aware build
@@ -161,13 +173,13 @@ Details are in **[docs/agent-orchestration.md](docs/agent-orchestration.md)**. N
 - The frontend scores locally; the API isn't wired in yet.
 - The API stores attempts **in memory**, so a restart clears them.
 - No accounts, and no progress sync across devices.
-- Only Mission 001 and Lab 01 are playable. The other cards are clearly marked *Coming soon* or *Planned*.
+- Missions 001–003 and Lab 01 are playable. The other cards are clearly marked *Coming soon* or *Planned*.
 
 ## Roadmap
 
 - [ ] Wire the frontend to the API, using server scoring when it's available
 - [ ] Django REST Framework + PostgreSQL, user accounts, persisted attempts
-- [ ] Missions 002 *Open Door* (access control) and 003 *Red Relay* (identity)
+- [ ] Mission 004 *Tailgate* and more labs
 - [ ] Real container labs behind a separate orchestration service: per-user isolation, resource limits, no egress, auto-cleanup, xterm.js. Never in the web process, never via the Docker socket.
 
 ---

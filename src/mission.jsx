@@ -31,9 +31,9 @@ function EmailView({ email, examined, onInspect }) {
         <div><dt>Subject</dt><dd><strong>{email.subject}</strong></dd></div>
       </dl>
       <div className="email-body">
-        {email.body.map((p, i) => p === '__LINK__'
+        {email.body.map((p, i) => p.link
           ? <p key={i}><button className={`${mark('link')} fake-link`} onClick={() => onInspect('link')} title="Inspect link — it will not open">{email.linkLabel}</button><span className="inert">(inert — inspect only)</span></p>
-          : <p key={i} style={{ whiteSpace: 'pre-line' }}>{i === 1 ? <button className={mark('urgency')} onClick={() => onInspect('urgency')}>{p}</button> : i === 4 ? <button className={mark('process')} onClick={() => onInspect('process')}>{p}</button> : p}</p>)}
+          : <p key={i} style={{ whiteSpace: 'pre-line' }}>{p.evidence ? <button className={mark(p.evidence)} onClick={() => onInspect(p.evidence)}>{p.text}</button> : p.text}</p>)}
       </div>
       <details className="headers" onToggle={(e) => e.currentTarget.open && onInspect('headers')}>
         <summary>View raw headers</summary>
@@ -43,7 +43,28 @@ function EmailView({ email, examined, onInspect }) {
   )
 }
 
-export function MissionPlayer({ mission, Model }) {
+function RecordsView({ mission, examined, onInspect }) {
+  return (
+    <div className="email paper records">
+      <div className="email-bar"><span>{mission.recordsTitle}</span><span>READ-ONLY</span></div>
+      {mission.records.map((sec) => (
+        <section key={sec.heading} className="record-sec">
+          <h4>{sec.heading}</h4>
+          <dl>
+            {sec.rows.map((r) => (
+              <div key={r.label + r.value}>
+                <dt>{r.label}</dt>
+                <dd>{r.evidence ? <button className={examined.includes(r.evidence) ? 'hl seen' : 'hl'} onClick={() => onInspect(r.evidence)}>{r.value}</button> : r.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))}
+    </div>
+  )
+}
+
+export function MissionPlayer({ mission }) {
   const [step, setStep] = useState(0)
   const [examined, setExamined] = useState([])
   const [active, setActive] = useState(null)
@@ -106,15 +127,19 @@ export function MissionPlayer({ mission, Model }) {
             <ul className="checklist">{mission.objectives.map((o) => <li key={o}>{o}</li>)}</ul>
             <button className="btn primary" onClick={() => setStep(1)}>Start investigation →</button>
           </div>
-          <Model file="atom_02_binary.glb" className="side-model" />
+          <aside className="kpis">
+            <div className="kpi"><p className="eyebrow">Evidence items</p><b>{mission.evidence.length}</b><i /></div>
+            <div className="kpi"><p className="eyebrow">Decisions</p><b>{mission.decisions.length}</b><i /></div>
+            <div className="kpi primary"><p className="eyebrow">Max score</p><b>{mission.evidencePoints + mission.decisions.reduce((s, d) => s + d.points, 0)}</b><i /></div>
+          </aside>
         </div>
       )}
 
       {step === 1 && (
         <>
-          <p className="instructions">Click each highlighted part of the email (and the raw headers) to log it as evidence. <b>{examined.length}/{mission.evidence.length}</b> examined.</p>
+          <p className="instructions">Select each highlighted item{mission.artifact === 'email' ? ' (and the raw headers)' : ''} to log it as evidence. <b>{examined.length}/{mission.evidence.length}</b> examined.</p>
           <div className="desk">
-            <EmailView email={mission.email} examined={examined} onInspect={inspect} />
+            {mission.artifact === 'email' ? <EmailView email={mission.email} examined={examined} onInspect={inspect} /> : <RecordsView mission={mission} examined={examined} onInspect={inspect} />}
             <aside className="inspector paper" aria-live="polite">
               <p className="file-tab">EVIDENCE INSPECTOR</p>
               {activeItem ? (
@@ -195,7 +220,7 @@ export function MissionPlayer({ mission, Model }) {
             <div className="actions">
               <button className="btn" onClick={replay}>Replay mission</button>
               <a className="btn" href="#/missions">Return to missions</a>
-              <a className="btn primary" href="#/labs/header-forensics">Continue in the lab →</a>
+              {mission.id === '001' && <a className="btn primary" href="#/labs/header-forensics">Continue in the lab →</a>}
             </div>
           </div>
           <div className="paper">
