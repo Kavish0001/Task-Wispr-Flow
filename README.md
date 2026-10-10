@@ -16,16 +16,9 @@ The Compose stack builds a React/Vite client and a small Node mission-orchestrat
 
 ## 3D source assets
 
-`ARCHIVE/` is intentionally ignored by Git and Docker. It contains the supplied `.glb` source models and stays local. To activate the supplied 3D scene on your own computer, copy these files into `public/models/` before running Docker:
+`public/models/` contains the supplied cinematic `.glb` assets and is versioned with the project, so the full 3D experience is available after a normal clone. `ARCHIVE/` stays ignored and is reserved for private planning or local source material.
 
-```text
-ARCHIVE/reactor_model.glb    → public/models/reactor_model.glb
-ARCHIVE/atom_02_binary.glb   → public/models/atom_02_binary.glb
-ARCHIVE/atom_03_tri.glb      → public/models/atom_03_tri.glb
-ARCHIVE/atom_04_tetra.glb    → public/models/atom_04_tetra.glb
-```
-
-The directory ignores model files but retains its `.gitkeep`, so the models are never committed. The app has a procedural teal reactor fallback whenever those files are absent.
+The app still has a procedural teal reactor fallback if a model cannot load.
 
 ## Agent model
 
