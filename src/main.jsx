@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import './styles.css'; import './operational.css'; import './models.css'; import './lab.css'; import './missions.css'
+import './styles.css'; import './operational.css'; import './models.css'; import './lab.css'; import './missions.css'; import './scene.css'
 import { HeroModel, MissionModel } from './hero-model.jsx'
 
 const missions=[
