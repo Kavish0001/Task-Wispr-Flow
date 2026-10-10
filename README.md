@@ -34,7 +34,10 @@ nothing is scored until you commit to a decision.
 | 001 | **The Impostor** | Phishing / social engineering | Suspicious email + raw headers |
 | 002 | **Open Door** | Access control, least privilege | Identity console of a stale contractor account |
 | 003 | **Red Relay** | MFA fatigue, account takeover | Authenticator, chat, sign-in and mailbox-rule audit |
-| 004 | *Tailgate* | Physical security | Coming soon |
+| 004 | **Tailgate** | Physical security, pretexting | Badge-reader log, visitor bookings, staff statements |
+| 005 | **Ghost Invoice** | Business email compromise | "CEO" payment email with a disguised attachment + headers |
+| 006 | **Quiet Drive** | Malware, removable media | Endpoint alert: USB bait, masqueraded file, beaconing |
+| 007 | *Deep Voice* | Vishing & deepfakes | Coming soon |
 
 Every mission uses the same flow:
 
@@ -62,6 +65,11 @@ analyst@lab:/$ submit 10.4.12.37
 Commands: `ls` `cd` `cat` `head` `grep [-i]` `wc -l` `pwd` `whoami` `objectives` `hint` `submit <answer>` `clear`, plus ↑/↓ history.
 
 > The terminal is a **browser sandbox**: a small command interpreter over in-memory files. It never runs anything on a real machine and has no network access, so it is safe to host publicly.
+
+### 📊 Home page metrics
+"By the numbers" is computed from the mission data itself (missions, skill areas, evidence items, decisions, lab tasks,
+training time), so it can never drift from the content. Below it, **Your progress** shows missions closed, best total
+score, average per mission and lab tasks solved, read from this browser's saved progress.
 
 ### 💾 Progress
 Completed missions (with best score) and solved lab tasks are remembered **in your browser** (`localStorage`). There are no accounts yet. Clearing site data resets everything.
@@ -173,13 +181,13 @@ Details are in **[docs/agent-orchestration.md](docs/agent-orchestration.md)**. N
 - The frontend scores locally; the API isn't wired in yet.
 - The API stores attempts **in memory**, so a restart clears them.
 - No accounts, and no progress sync across devices.
-- Missions 001–003 and Lab 01 are playable. The other cards are clearly marked *Coming soon* or *Planned*.
+- Missions 001–006 and Lab 01 are playable. The other cards are clearly marked *Coming soon* or *Planned*.
 
 ## Roadmap
 
 - [ ] Wire the frontend to the API, using server scoring when it's available
 - [ ] Django REST Framework + PostgreSQL, user accounts, persisted attempts
-- [ ] Mission 004 *Tailgate* and more labs
+- [ ] Mission 007 *Deep Voice* and more labs
 - [ ] Real container labs behind a separate orchestration service: per-user isolation, resource limits, no egress, auto-cleanup, xterm.js. Never in the web process, never via the Docker socket.
 
 ---

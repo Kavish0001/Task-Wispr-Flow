@@ -1,3 +1,5 @@
+import { tailgate, ghostInvoice, quietDrive, upcoming } from './missions-extra.js'
+
 // Mission content is pure data. Every domain uses the reserved .invalid TLD; no link is ever clickable.
 
 export const impostor = {
@@ -247,9 +249,18 @@ export const redRelay = {
   evidencePoints: 50,
 }
 
-export const playableMissions = [impostor, openDoor, redRelay]
+export const playableMissions = [impostor, openDoor, redRelay, tailgate, ghostInvoice, quietDrive]
 
-export const missions = [
-  ...playableMissions,
-  { id: '004', slug: null, title: 'Tailgate', category: 'Physical security', difficulty: 'Beginner', estimatedMinutes: '6–8', description: 'Someone in a hi-vis vest is carrying boxes toward the badge door. Would you hold it open?', locked: true },
-]
+export const missions = [...playableMissions, ...upcoming]
+
+// Aggregate numbers shown on the home page, computed from the content itself.
+const minutes = (m) => m.estimatedMinutes.split('–').map(Number)
+export const stats = {
+  missions: playableMissions.length,
+  evidence: playableMissions.reduce((n, m) => n + m.evidence.length, 0),
+  decisions: playableMissions.reduce((n, m) => n + m.decisions.length, 0),
+  skills: new Set(playableMissions.map((m) => m.category)).size,
+  minutesMin: playableMissions.reduce((n, m) => n + minutes(m)[0], 0),
+  minutesMax: playableMissions.reduce((n, m) => n + (minutes(m)[1] || minutes(m)[0]), 0),
+  maxScore: playableMissions.length * 100,
+}

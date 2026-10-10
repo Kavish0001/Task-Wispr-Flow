@@ -23,7 +23,7 @@ function EmailView({ email, examined, onInspect }) {
   const mark = (id) => (examined.includes(id) ? 'hl seen' : 'hl')
   return (
     <div className="email paper">
-      <div className="email-bar"><span>INBOX · maya.chen</span><span>{email.date}</span></div>
+      <div className="email-bar"><span>INBOX · {email.to}</span><span>{email.date}</span></div>
       <dl className="email-head">
         <div><dt>From</dt><dd><button className={mark('sender')} onClick={() => onInspect('sender')}>{email.fromName} &lt;{email.fromAddress}&gt;</button></dd></div>
         <div><dt>Reply-To</dt><dd><button className={mark('replyto')} onClick={() => onInspect('replyto')}>{email.replyTo}</button></dd></div>
