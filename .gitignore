@@ -1,6 +1,7 @@
 # Local source assets supplied outside the repository
 ARCHIVE/
-public/models/
+public/models/*
+!public/models/.gitkeep
 
 # Local diagnostics and editor state
 gcm-diagnose.log

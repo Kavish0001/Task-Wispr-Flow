@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles.css'
+import './operational.css'
+import './models.css'
+import { HeroModel, MissionModel } from './hero-model.jsx'
 
 const fallbackMissions = [
   { id: 'signal-noise', index: '01', title: 'Signal / Noise', level: 'Entry', time: '06 min', status: 'ready', brief: 'A suspicious message reaches the studio inbox. Read the context, detect the cues, and choose the safest next step.', tags: ['Social engineering', 'Verification'], color: 'cyan' },
@@ -39,6 +42,7 @@ function App() {
         <div className="hero-actions"><button className="primary" onClick={launch}>Enter operation <b>→</b></button><button className="text-button" onClick={() => document.getElementById('missions').scrollIntoView({ behavior: 'smooth' })}>View mission map</button></div>
       </div>
       <div className="reactor" aria-hidden="true">
+        <HeroModel />
         <div className="orbit orbit-a" /><div className="orbit orbit-b" /><div className="orbit orbit-c" />
         <div className="core"><span /><span /><span /></div>
         <div className="reactor-label"><b>H.O. // CORE_01</b><small>EDUCATIONAL SIMULATION</small></div>
@@ -53,6 +57,7 @@ function App() {
           <span className="mission-number">{mission.index}</span><span className="mission-name">{mission.title}<small>{mission.level} · {mission.time}</small></span><span className="mission-state">{mission.status === 'ready' ? 'OPEN' : 'LOCKED'}</span><b>↗</b>
         </button>)}</div>
         <article className={`mission-detail ${detail.color}`}>
+          <MissionModel index={detail.index} />
           <div className="detail-grid" /><p className="eyebrow">MISSION_{detail.index} // {detail.status}</p><h3>{detail.title}</h3><p>{detail.brief}</p><div className="tags">{detail.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><button className="primary small" onClick={launch} disabled={detail.status !== 'ready'}>{detail.status === 'ready' ? 'Begin briefing →' : 'Awaiting clearance'}</button>
         </article>
       </div>
