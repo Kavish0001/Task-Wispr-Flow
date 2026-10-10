@@ -5,8 +5,8 @@ app.use(express.json())
 
 const missions = [
   { id: 'signal-noise', index: '01', title: 'Signal / Noise', level: 'Entry', time: '06 min', status: 'ready', brief: 'A suspicious message reaches the studio inbox. Read the context, detect the cues, and choose the safest next step.', tags: ['Social engineering', 'Verification'], color: 'cyan' },
-  { id: 'access-window', index: '02', title: 'Access Window', level: 'Entry', time: '08 min', status: 'locked', brief: 'Map what a new team member should be able to access — and what should remain protected.', tags: ['Least privilege', 'Identity'], color: 'amber' },
-  { id: 'relay', index: '03', title: 'The Relay', level: 'Fresh', time: '10 min', status: 'locked', brief: 'Follow a fictional alert across a small network and decide what evidence matters first.', tags: ['Triage', 'Observability'], color: 'violet' }
+  { id: 'access-window', index: '02', title: 'Access Window', level: 'Entry', time: '08 min', status: 'ready', brief: 'Map what a new team member should be able to access — and what should remain protected.', tags: ['Least privilege', 'Identity'], color: 'amber' },
+  { id: 'relay', index: '03', title: 'The Relay', level: 'Fresh', time: '10 min', status: 'ready', brief: 'Follow a fictional alert across a small network and decide what evidence matters first.', tags: ['Triage', 'Observability'], color: 'violet' }
 ]
 
 // The central mission director runs bounded, educational roles. It never reaches live systems.

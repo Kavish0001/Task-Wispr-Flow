@@ -5,69 +5,42 @@ import './operational.css'
 import './models.css'
 import { HeroModel, MissionModel } from './hero-model.jsx'
 
-const fallbackMissions = [
-  { id: 'signal-noise', index: '01', title: 'Signal / Noise', level: 'Entry', time: '06 min', status: 'ready', brief: 'A suspicious message reaches the studio inbox. Read the context, detect the cues, and choose the safest next step.', tags: ['Social engineering', 'Verification'], color: 'cyan' },
-  { id: 'access-window', index: '02', title: 'Access Window', level: 'Entry', time: '08 min', status: 'locked', brief: 'Map what a new team member should be able to access — and what should remain protected.', tags: ['Least privilege', 'Identity'], color: 'amber' },
-  { id: 'relay', index: '03', title: 'The Relay', level: 'Fresh', time: '10 min', status: 'locked', brief: 'Follow a fictional alert across a small network and decide what evidence matters first.', tags: ['Triage', 'Observability'], color: 'violet' }
+const seededMissions = [
+  { id: 'signal-noise', index: '01', title: 'Signal / Noise', level: 'Foundation', time: '06 min', status: 'ready', brief: 'A message lands in the studio inbox. Separate useful context from pressure tactics.', tags: ['Social engineering', 'Verification'], color: 'cyan' },
+  { id: 'access-window', index: '02', title: 'Access Window', level: 'Foundation', time: '08 min', status: 'ready', brief: 'A new collaborator needs access before a deadline. Keep the setup useful and contained.', tags: ['Least privilege', 'Identity'], color: 'amber' },
+  { id: 'relay', index: '03', title: 'The Relay', level: 'Field notes', time: '10 min', status: 'ready', brief: 'A fictional alert crosses a small team network. Decide what matters first.', tags: ['Triage', 'Observability'], color: 'violet' }
 ]
 
-function App() {
-  const [missions, setMissions] = useState(fallbackMissions)
-  const [selected, setSelected] = useState(fallbackMissions[0])
-  const [mode, setMode] = useState('map')
-  const [pulse, setPulse] = useState(0)
-
-  useEffect(() => {
-    fetch('/api/missions').then((res) => res.ok ? res.json() : null).then((data) => {
-      if (data?.missions?.length) { setMissions(data.missions); setSelected(data.missions[0]) }
-    }).catch(() => {})
-  }, [])
-
-  const detail = useMemo(() => selected || missions[0], [selected, missions])
-  const launch = () => { setMode('briefing'); setPulse((n) => n + 1) }
-
-  return <main className={`app ${mode === 'briefing' ? 'briefing' : ''}`}>
-    <div className="film-grain" />
-    <div className="scanlines" />
-    <nav>
-      <a className="mark" href="#top" aria-label="Human Operations home"><i /> HUMAN <span>OPERATIONS</span></a>
-      <div className="nav-links"><a href="#missions">Missions</a><a href="#method">Method</a><button className="profile">K / 00</button></div>
-    </nav>
-
-    <section className="hero" id="top">
-      <div className="hero-copy">
-        <p className="eyebrow">HACKER HOUSE // ORIENTATION</p>
-        <h1>Learn to read<br /><em>the signal.</em></h1>
-        <p className="lede">Cinematic cyber missions for people who learn through atmosphere, story, and sharp visual cues.</p>
-        <div className="hero-actions"><button className="primary" onClick={launch}>Enter operation <b>→</b></button><button className="text-button" onClick={() => document.getElementById('missions').scrollIntoView({ behavior: 'smooth' })}>View mission map</button></div>
-      </div>
-      <div className="reactor" aria-hidden="true">
-        <HeroModel />
-        <div className="orbit orbit-a" /><div className="orbit orbit-b" /><div className="orbit orbit-c" />
-        <div className="core"><span /><span /><span /></div>
-        <div className="reactor-label"><b>H.O. // CORE_01</b><small>EDUCATIONAL SIMULATION</small></div>
-      </div>
-      <div className="coordinates">19° 07' 48.0" N&nbsp;&nbsp; 72° 52' 48.0" E<br />LOCAL // 23:48:02</div>
-    </section>
-
-    <section className="mission-section" id="missions">
-      <header><div><p className="eyebrow">SELECT A TRANSMISSION</p><h2>Mission map</h2></div><p className="progress">01 <span>/ 03</span> <i /></p></header>
-      <div className="mission-layout">
-        <div className="mission-list">{missions.map((mission) => <button key={mission.id} className={`mission ${detail.id === mission.id ? 'active' : ''} ${mission.status}`} onClick={() => setSelected(mission)}>
-          <span className="mission-number">{mission.index}</span><span className="mission-name">{mission.title}<small>{mission.level} · {mission.time}</small></span><span className="mission-state">{mission.status === 'ready' ? 'OPEN' : 'LOCKED'}</span><b>↗</b>
-        </button>)}</div>
-        <article className={`mission-detail ${detail.color}`}>
-          <MissionModel index={detail.index} />
-          <div className="detail-grid" /><p className="eyebrow">MISSION_{detail.index} // {detail.status}</p><h3>{detail.title}</h3><p>{detail.brief}</p><div className="tags">{detail.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><button className="primary small" onClick={launch} disabled={detail.status !== 'ready'}>{detail.status === 'ready' ? 'Begin briefing →' : 'Awaiting clearance'}</button>
-        </article>
-      </div>
-    </section>
-
-    <section className="method" id="method"><p className="eyebrow">THE HUMAN METHOD</p><div className="method-grid"><h2>Context before<br /><em>commands.</em></h2><p>Every operation starts with a scene, an observed signal, and a decision. You build a mental model before touching a tool.</p><ul><li><b>01</b> Observe the story</li><li><b>02</b> Find the evidence</li><li><b>03</b> Make a safe call</li></ul></div></section>
-
-    {mode === 'briefing' && <div className="briefing-panel" key={pulse}><button className="close" onClick={() => setMode('map')} aria-label="Close briefing">×</button><p className="eyebrow">LIVE BRIEFING // {detail.index}</p><h2>{detail.title}</h2><p>Your objective: identify the cues, explain your decision, and protect the fictional team. No live targets. No real credentials. Just clear thinking.</p><div className="briefing-status"><span /> SCENE LOADED <i /> READY FOR YOUR CALL</div><button className="primary" onClick={() => setMode('map')}>Start simulation →</button></div>}
-    <footer>HUMAN OPERATIONS <span>STAY CURIOUS. VERIFY EVERYTHING.</span></footer>
-  </main>
+const scenarios = {
+  'signal-noise': { scene: '17:42 · STUDIO INBOX', intro: 'A client-like email asks you to open a “revised invoice” before the account is paused. The sender name looks familiar, but the address is one character off.', questions: [
+    ['What is the strongest first move?', ['Open the attachment in a new tab to check it', 'Use a known contact method to verify the request', 'Forward it to the whole team so they are aware'], 1, 'Verification through a known channel breaks the urgency loop without interacting with the attachment.'],
+    ['Which detail deserves the most weight?', ['The urgent deadline in the subject', 'The sender address differs from the established contact', 'The email uses the client’s logo'], 1, 'Branding and urgent wording are easy to imitate. An unexpected sender address is a concrete mismatch.'],
+    ['What should the team record?', ['The message and the verification outcome', 'Only a screenshot of the logo', 'Nothing unless money was lost'], 0, 'Keeping the message and the outcome creates useful context if similar attempts recur.']
+  ] },
+  'access-window': { scene: '09:10 · PROJECT ACCESS', intro: 'A freelance editor joins a two-week project. They need to upload drafts and review feedback, while payroll and client records remain out of scope.', questions: [
+    ['Which access setup best matches the task?', ['A project folder with upload and comment access', 'The shared team administrator account', 'Access to every drive until the project ends'], 0, 'Access should fit the work, not convenience. A project-scoped role is easy to review and remove.'],
+    ['What makes the handoff safer?', ['Set a clear expiry date and named owner', 'Share one password in the welcome email', 'Ask them not to look at unrelated folders'], 0, 'An expiry and an owner turn access into a visible, reversible decision.'],
+    ['The project is complete. What is next?', ['Review and remove the temporary access', 'Leave it in case the editor returns', 'Change the administrator password only'], 0, 'Removing access when the work ends keeps permissions aligned with real needs.']
+  ] },
+  relay: { scene: '13:26 · FICTIONAL ALERT', intro: 'A monitoring dashboard flags repeated sign-in failures for a test account. No real systems are involved; practise a calm, evidence-led response.', questions: [
+    ['What is the first useful evidence to preserve?', ['The alert time, account label, and affected service', 'A guess about who caused it', 'A public post asking if anyone noticed'], 0, 'Start with observable facts. They help the right people reconstruct the event without speculation.'],
+    ['Who should receive the initial note?', ['The designated service owner through the agreed channel', 'Every contact in the company', 'No one until you know every detail'], 0, 'A focused escalation is timely, clear, and avoids spreading unverified claims.'],
+    ['What belongs in the handoff?', ['Facts, actions taken, and the next review point', 'Only the phrase “issue resolved”', 'A technical theory stated as fact'], 0, 'A factual handoff lets the next person continue safely and transparently.']
+  ] }
 }
 
+function App() {
+  const [missions, setMissions] = useState(seededMissions), [selected, setSelected] = useState(seededMissions[0]), [playing, setPlaying] = useState(false), [step, setStep] = useState(0), [choice, setChoice] = useState(null), [answers, setAnswers] = useState([])
+  useEffect(() => { fetch('/api/missions').then(r => r.ok ? r.json() : null).then(data => { if (data?.missions?.length) { const available = data.missions.map(m => ({ ...m, status: 'ready' })); setMissions(available); setSelected(available[0]) } }).catch(() => {}) }, [])
+  const detail = useMemo(() => selected || missions[0], [selected, missions]), scenario = scenarios[detail.id], done = step >= scenario.questions.length, question = scenario.questions[step], score = answers.filter(Boolean).length
+  const start = () => { setStep(0); setChoice(null); setAnswers([]); setPlaying(true) }
+  const confirm = () => { if (choice === null) return; setAnswers(a => [...a, choice === question[2]]); setChoice(null); setStep(n => n + 1) }
+  return <main className="app"><div className="film-grain" /><div className="scanlines" />
+    <nav><a className="mark" href="#top"><i />HUMAN <span>OPERATIONS</span></a><div className="nav-links"><a href="#missions">Missions</a><a href="#method">Method</a><span className="status-dot">TRAINING MODE</span></div></nav>
+    <section className="hero" id="top"><div className="hero-copy"><p className="eyebrow">FIELD SCHOOL / ORIENTATION 01</p><h1>Notice what<br /><em>doesn’t belong.</em></h1><p className="lede">Practical security judgment, built through quiet simulations — not lectures, not live systems.</p><div className="hero-actions"><button className="primary" onClick={start}>Start a mission <b>→</b></button><button className="text-button" onClick={() => document.querySelector('#missions').scrollIntoView({ behavior: 'smooth' })}>Explore scenarios</button></div></div><div className="reactor"><HeroModel /><div className="reactor-label"><b>REACTOR / 01</b><small>SIMULATION CORE</small></div></div><div className="coordinates">LEARNING ENVIRONMENT / SAFE BY DESIGN<br />OBSERVE · VERIFY · DECIDE</div></section>
+    <section className="mission-section" id="missions"><header><div><p className="eyebrow">CHOOSE A SCENARIO</p><h2>Mission archive</h2></div><p className="progress">{detail.index} <span>/ 03</span> <i /></p></header><div className="mission-layout"><div className="mission-list">{missions.map(m => <button key={m.id} className={`mission ${detail.id === m.id ? 'active' : ''}`} onClick={() => setSelected(m)}><span className="mission-number">{m.index}</span><span className="mission-name">{m.title}<small>{m.level} · {m.time}</small></span><span className="mission-state">READY</span><b>↗</b></button>)}</div><article className={`mission-detail ${detail.color}`}><MissionModel index={detail.index} /><div className="detail-grid" /><p className="eyebrow">SCENARIO_{detail.index} / READY</p><h3>{detail.title}</h3><p>{detail.brief}</p><div className="tags">{detail.tags.map(t => <span key={t}>{t}</span>)}</div><button className="primary small" onClick={start}>Play mission →</button></article></div></section>
+    <section className="method" id="method"><p className="eyebrow">THE HUMAN METHOD</p><div className="method-grid"><h2>Context before<br /><em>confidence.</em></h2><p>Every exercise begins with a scene, a handful of observable signals, and a decision you can explain.</p><ul><li><b>01</b> Read the situation</li><li><b>02</b> Prioritise evidence</li><li><b>03</b> Choose the safe next step</li></ul></div></section>
+    {playing && <div className="mission-player" role="dialog" aria-modal="true"><div className="player-card"><button className="close" onClick={() => setPlaying(false)}>×</button>{done ? <div className="completion"><p className="eyebrow">MISSION COMPLETE / {detail.index}</p><h2>{score === scenario.questions.length ? 'Clean read.' : 'Good field notes.'}</h2><p>You identified {score} of {scenario.questions.length} decision points. Review the cues, then take the next mission whenever you are ready.</p><div className="score">{score} <span>/ {scenario.questions.length}</span></div><button className="primary" onClick={() => setPlaying(false)}>Return to archive →</button></div> : <><p className="eyebrow">{scenario.scene}<span className="question-count">{String(step + 1).padStart(2, '0')} / 03</span></p><h2>{detail.title}</h2>{step === 0 && <p className="scene-copy">{scenario.intro}</p>}<div className="question"><p>{question[0]}</p><div className="choices">{question[1].map((item, i) => <button key={item} className={choice === i ? 'selected' : ''} onClick={() => setChoice(i)}><span>{String.fromCharCode(65 + i)}</span>{item}</button>)}</div></div>{answers.length > 0 && <p className="feedback">FIELD NOTE: {scenario.questions[step - 1][3]}</p>}<button className="primary next" onClick={confirm} disabled={choice === null}>{step === 2 ? 'Complete mission →' : 'Confirm decision →'}</button></>}</div></div>}
+    <footer>HUMAN OPERATIONS <span>FICTIONAL SCENARIOS. REAL-WORLD JUDGMENT.</span></footer></main>
+}
 createRoot(document.getElementById('root')).render(<App />)

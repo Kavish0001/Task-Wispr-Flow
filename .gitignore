@@ -1,8 +1,37 @@
-# Local source assets supplied outside the repository
+# Dependencies
+node_modules/
+
+# Production and tool output
+dist/
+coverage/
+.vite/
+.cache/
+*.tsbuildinfo
+
+# Environment files and local secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Logs and diagnostics
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+gcm-diagnose.log
+
+# Local source material (not part of the application)
 ARCHIVE/
 
-# Local diagnostics and editor state
-gcm-diagnose.log
+# Editor and operating system files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
 Thumbs.db
-.vscode/
+Desktop.ini

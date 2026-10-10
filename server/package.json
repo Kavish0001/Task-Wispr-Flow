@@ -3,6 +3,11 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "scripts": { "start": "node index.js" },
-  "dependencies": { "express": "latest" }
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "latest",
+    "wispr-flow-hacker-house": "file:.."
+  }
 }
