@@ -7,7 +7,6 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "latest",
-    "wispr-flow-hacker-house": "file:.."
+    "express": "^5.1.0"
   }
 }
