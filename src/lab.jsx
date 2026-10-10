@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { runCommand } from './data/labs.js'
+import { loadProgress, saveProgress } from './progress.js'
 
 export function LabTerminal({ lab }) {
-  const [state, setState] = useState({ cwd: '', solved: [], output: '' })
+  const [state, setState] = useState(() => ({ cwd: '', solved: (loadProgress()['lab:' + lab.slug] || {}).solved || [], output: '' }))
   const [lines, setLines] = useState([
     { kind: 'sys', text: `Operation: HUMAN sandbox — ${lab.title}` },
     { kind: 'sys', text: "Simulated terminal. No network, no real shell. Type 'help', then 'cat case/README.txt'." },
@@ -24,6 +25,7 @@ export function LabTerminal({ lab }) {
     try { next = runCommand(lab, prev, cmd) } catch { next = { ...prev, output: 'error: command failed' } }
     stateRef.current = next
     setState(next)
+    if (next.solved.length !== prev.solved.length) saveProgress('lab:' + lab.slug, { solved: next.solved, completed: next.solved.length === lab.tasks.length })
     setLines((l) => [...l, { kind: 'cmd', text: `analyst@lab:/${prev.cwd}$ ${cmd}` }, ...(next.output ? [{ kind: 'out', text: String(next.output) }] : [])])
   }
   const onKey = (e) => {
@@ -33,6 +35,7 @@ export function LabTerminal({ lab }) {
     else if (e.key === 'ArrowDown') { e.preventDefault(); const i = hIdx - 1; setHIdx(Math.max(i, -1)); setInput(i < 0 ? '' : history[i]) }
   }
   const done = state.solved.length === lab.tasks.length
+  const reset = () => { const fresh = { cwd: '', solved: [], output: '' }; stateRef.current = fresh; setState(fresh); saveProgress('lab:' + lab.slug, { solved: [], completed: false }); setLines([{ kind: 'sys', text: 'Lab reset. Progress cleared.' }]) }
 
   return (
     <section className="band page-top lab">
@@ -55,11 +58,12 @@ export function LabTerminal({ lab }) {
           <ol>
             {lab.tasks.map((t) => <li key={t.id} className={state.solved.includes(t.id) ? 'done' : ''}>{state.solved.includes(t.id) ? '✓ ' : ''}{t.prompt}</li>)}
           </ol>
+          {state.solved.length > 0 && !done && <p className="muted">Progress restored from this browser.</p>}
           <p className="muted">Answer with <code>submit &lt;answer&gt;</code>. Stuck? Type <code>hint</code>.</p>
           <div className="quick">
             {['ls case', 'cat case/suspicious.eml', 'grep POST case/proxy.log', 'hint'].map((c) => <button key={c} className="btn small" onClick={() => exec(c)}>{c}</button>)}
           </div>
-          {done && <div className="feedback good" role="status"><strong>LAB COMPLETE</strong><p>You proved the email was spoofed, found the compromised user and the correct reporting channel. Next step in real life: reset j.ortiz's password and revoke sessions.</p><a className="btn primary" href="#/missions">Back to missions</a></div>}
+          {done && <div className="feedback good" role="status"><strong>LAB COMPLETE</strong><p>You proved the email was spoofed, found the compromised user and the correct reporting channel. Next step in real life: reset j.ortiz's password and revoke sessions.</p><div className="actions"><a className="btn primary" href="#/missions">Back to missions</a><button className="btn" onClick={reset}>Reset lab</button></div></div>}
         </aside>
       </div>
     </section>

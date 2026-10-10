@@ -242,3 +242,4 @@ blockquote { margin: 18px 0; padding: 14px 18px; border-left: 4px solid var(--in
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+.featured-pair { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-top: 0; }

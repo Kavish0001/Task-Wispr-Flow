@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { loadProgress, saveProgress } from './progress.js'
 
 const STEPS = ['Briefing', 'Evidence', 'Decision', 'Debrief']
 
@@ -75,6 +76,11 @@ export function MissionPlayer({ mission, Model }) {
   const toDecision = () => { setScoredEvidence((s) => s ?? examined); setStep(2) }
 
   const score = scoreMission(mission, scoredEvidence ?? examined, firstAnswers)
+  useEffect(() => {
+    if (step !== 3) return
+    const prev = loadProgress()['mission:' + mission.id] || {}
+    saveProgress('mission:' + mission.id, { completed: true, best: Math.max(prev.best || 0, score.total), last: score.total, completedAt: new Date().toISOString() })
+  }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
   const missed = mission.evidence.filter((e) => !examined.includes(e.id))
 
   return (

@@ -5,6 +5,7 @@ import { missions, impostor } from './data/missions.js'
 import { labs, headerLab } from './data/labs.js'
 import { MissionPlayer } from './mission.jsx'
 import { LabTerminal } from './lab.jsx'
+import { loadProgress } from './progress.js'
 
 const ModelStage = lazy(() => import('./hero-model.jsx'))
 
@@ -70,14 +71,25 @@ function Landing() {
       </section>
 
       <section className="band">
-        <h2 className="section-title"><span>02</span> Featured case</h2>
-        <MissionCard m={impostor} featured />
+        <h2 className="section-title"><span>02</span> Start here</h2>
+        <div className="card-grid featured-pair">
+          <MissionCard m={impostor} featured />
+          <LabCard l={headerLab} />
+        </div>
       </section>
     </>
   )
 }
 
+function StatusValue({ locked, rec, lockedText, total }) {
+  if (locked) return <dd className="locked">{lockedText}</dd>
+  if (rec?.completed) return <dd className="ok">✓ Completed{rec.best != null ? ` · best ${rec.best}/100` : ''}</dd>
+  if (rec?.solved?.length) return <dd className="ok">In progress · {rec.solved.length}/{total}</dd>
+  return <dd className="ok">Available</dd>
+}
+
 function MissionCard({ m, featured }) {
+  const rec = loadProgress()['mission:' + m.id]
   const body = (
     <>
       <span className="tape tape-c" />
@@ -88,9 +100,9 @@ function MissionCard({ m, featured }) {
         <div><dt>Category</dt><dd>{m.category}</dd></div>
         <div><dt>Difficulty</dt><dd>{m.difficulty}</dd></div>
         <div><dt>Time</dt><dd>{m.estimatedMinutes} min</dd></div>
-        <div><dt>Status</dt><dd className={m.locked ? 'locked' : 'ok'}>{m.locked ? 'Coming soon' : 'Available'}</dd></div>
+        <div><dt>Status</dt><StatusValue locked={m.locked} rec={rec} lockedText="Coming soon" /></div>
       </dl>
-      {!m.locked && <span className="btn primary small">Open case file →</span>}
+      {!m.locked && <span className="btn primary small">{rec?.completed ? 'Replay case →' : 'Open case file →'}</span>}
     </>
   )
   return m.locked
@@ -109,6 +121,13 @@ function Hub() {
   )
 }
 
+function LabCard({ l }) {
+  const inner = (<><span className="tape tape-c" /><div className="file-tab">LAB</div><h3>{l.title}</h3><p>{l.description}</p>
+    <dl className="meta"><div><dt>Track</dt><dd>{l.category}</dd></div><div><dt>Difficulty</dt><dd>{l.difficulty}</dd></div><div><dt>Time</dt><dd>{l.estimatedMinutes} min</dd></div><div><dt>Status</dt><StatusValue locked={l.locked} rec={loadProgress()['lab:' + l.slug]} lockedText="Planned" total={l.tasks?.length} /></div></dl>
+    {!l.locked && <span className="btn primary small">Launch terminal →</span>}</>)
+  return l.locked ? <article className="case-card locked-card" aria-disabled="true">{inner}</article> : <a className="case-card" href={`#/labs/${l.slug}`}>{inner}</a>
+}
+
 function LabsHub() {
   return (
     <section className="band page-top">
@@ -116,12 +135,7 @@ function LabsHub() {
       <h1 className="page-h">Labs</h1>
       <p className="lede">Hands-on terminal exercises. Lab 01 runs in a browser sandbox — a virtual filesystem with no network and no real shell.</p>
       <div className="card-grid">
-        {labs.map((l) => {
-          const inner = (<><span className="tape tape-c" /><div className="file-tab">LAB</div><h3>{l.title}</h3><p>{l.description}</p>
-            <dl className="meta"><div><dt>Track</dt><dd>{l.category}</dd></div><div><dt>Difficulty</dt><dd>{l.difficulty}</dd></div><div><dt>Time</dt><dd>{l.estimatedMinutes} min</dd></div><div><dt>Status</dt><dd className={l.locked ? 'locked' : 'ok'}>{l.locked ? 'Planned' : 'Available'}</dd></div></dl>
-            {!l.locked && <span className="btn primary small">Launch terminal →</span>}</>)
-          return l.locked ? <article key={l.title} className="case-card locked-card" aria-disabled="true">{inner}</article> : <a key={l.title} className="case-card" href={`#/labs/${l.slug}`}>{inner}</a>
-        })}
+        {labs.map((l) => <LabCard key={l.title} l={l} />)}
       </div>
     </section>
   )
