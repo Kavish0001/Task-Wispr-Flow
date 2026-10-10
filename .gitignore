@@ -1,0 +1,9 @@
+# Local source assets supplied outside the repository
+ARCHIVE/
+public/models/
+
+# Local diagnostics and editor state
+gcm-diagnose.log
+.DS_Store
+Thumbs.db
+.vscode/

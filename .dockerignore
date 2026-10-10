@@ -1,0 +1,6 @@
+node_modules
+dist
+ARCHIVE
+.git
+gcm-diagnose.log
+npm-debug.log
